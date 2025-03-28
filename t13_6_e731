@@ -1,0 +1,33 @@
+OPERATORS = {"+": 1, "-": 1, "*": 2, "/": 2}
+
+def to_infix(expression: str) -> str:
+    stack = []
+    for token in reversed(expression):
+        if token in OPERATORS:
+            if len(stack) < 2:
+                raise ValueError("Некоректний вираз")
+            a, a_priority = stack.pop()
+            b, b_priority = stack.pop()
+            
+            if a_priority < OPERATORS[token]:
+                a = f"({a})"
+            if b_priority <= OPERATORS[token]:  # Виправлено для правильної розстановки дужок
+                b = f"({b})"
+            
+            result = f"{a} {token} {b}"
+            stack.append((result, OPERATORS[token]))
+        else:
+            stack.append((token, 3))  # 3 - найвищий пріоритет для операндів
+    
+    if len(stack) != 1:
+        raise ValueError("Некоректний вираз")
+    
+    return stack.pop()[0]
+
+if __name__ == "__main__":
+    with open("input.txt") as file:
+        expr = file.readline().strip()
+    try:
+        print(to_infix(expr))
+    except ValueError as e:
+        print("Помилка у вхідному виразі:", e)
